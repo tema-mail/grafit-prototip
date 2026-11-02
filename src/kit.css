@@ -1,0 +1,141 @@
+/* Комплект чёрно-белого прототипа (маркетолог → site-prototype).
+   Прототип показывает смысл, текст, порядок и действие – не дизайн. Цвета только серые; дизайнер делает визуал после «да» владельца.
+   Блок: <section class="w-block" data-n="1" data-name="Первый экран" data-question="вопрос клиента" data-proof="опора"> */
+:root {
+  --ink: #141414; --muted: #5f5f5f; --line: #b9b9b9; --fill: #ececec; --fill2: #f6f6f6; --paper: #ffffff;
+  --note: #fff6c8; --note-line: #c9b44a; --ask: #7a1f1f;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, Menlo, Consolas, monospace;
+  --wrap: 1180px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--font); }
+img { max-width: 100%; }
+a { color: var(--ink); }
+h1, h2, h3 { margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(28px, 4.2vw, 46px); }
+h2 { font-size: clamp(22px, 3vw, 32px); }
+h3 { font-size: 18px; }
+p { margin: 0; }
+.w-wrap { max-width: var(--wrap); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.w-stack { display: grid; gap: 14px; }
+.w-muted { color: var(--muted); }
+
+/* Панель прототипа: переключатели «Логика» и «Комментарии» */
+.w-bar { position: sticky; top: 0; z-index: 50; background: var(--ink); color: #fff; font: 13px/1.3 var(--mono); }
+.w-bar .w-wrap { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding-block: 8px; }
+.w-bar b { font-weight: 600; }
+.w-bar label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+
+/* Блок и его подпись логики */
+.w-block { border-top: 1px dashed var(--line); padding-block: 40px; position: relative; }
+.w-logic { display: none; font: 12.5px/1.45 var(--mono); background: var(--fill2); border: 1px solid var(--line); padding: 8px 10px; margin-bottom: 18px; }
+body.show-logic .w-logic { display: block; }
+.w-logic b { font-weight: 700; }
+.w-note { display: none; background: var(--note); border: 1px dashed var(--note-line); padding: 8px 10px; font-size: 13.5px; margin-top: 12px; }
+body.show-notes .w-note { display: block; }
+.w-note::before { content: "Дизайнеру: "; font-weight: 700; }
+.w-seo { display: none; font: 13px/1.5 var(--mono); background: #eef3ff; border: 1px solid #8aa0d6; padding: 12px 14px; margin: 12px auto; max-width: var(--wrap); }
+body.show-seo .w-seo { display: block; }
+.w-seo table { border-collapse: collapse; width: 100%; }
+.w-seo td { border-top: 1px solid #c9d4ee; padding: 4px 6px; vertical-align: top; }
+.w-seo td:first-child { white-space: nowrap; font-weight: 700; width: 1%; }
+.w-seo .bad { color: var(--ask); font-weight: 700; }
+.w-seo ul { margin: 0; padding-left: 18px; }
+.w-ask { color: var(--ask); font-weight: 600; background: #f7e9e9; padding: 0 4px; }
+
+/* Место под фото/видео/схему: роль, а не «картинка» */
+.w-media { background: repeating-linear-gradient(45deg, var(--fill), var(--fill) 10px, var(--fill2) 10px, var(--fill2) 20px);
+  border: 1px solid var(--line); min-height: 220px; display: grid; place-items: center; text-align: center; padding: 16px;
+  color: var(--muted); font-size: 14px; }
+.w-media::before { content: "▣ "; }
+.w-media.small { min-height: 120px; }
+
+/* Кнопки */
+.w-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 2px solid var(--ink);
+  background: var(--ink); color: #fff; font-weight: 600; text-decoration: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+.w-btn.ghost { background: transparent; color: var(--ink); }
+.w-btn[disabled] { opacity: .45; cursor: not-allowed; }
+.w-hint { font-size: 13px; color: var(--muted); }
+
+/* Шапка */
+.w-header .w-wrap { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; justify-content: space-between; padding-block: 12px; }
+.w-logo { border: 2px solid var(--ink); padding: 6px 10px; font-weight: 700; }
+.w-descr { font-size: 13.5px; color: var(--muted); max-width: 34ch; }
+.w-contacts-top { display: grid; gap: 2px; font-size: 14px; text-align: right; }
+.w-nav { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14.5px; border-top: 1px solid var(--line); padding-block: 8px; }
+
+/* Первый экран */
+.w-hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 32px; align-items: center; }
+.w-hero ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.w-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* Сетки и карточки */
+.w-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); gap: 14px; }
+.w-card { border: 1px solid var(--line); padding: 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.w-card .w-media { min-height: 140px; }
+.w-price { font-weight: 700; }
+
+/* Этапы */
+.w-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 14px; counter-reset: st; }
+.w-steps li { border: 1px solid var(--line); padding: 14px; counter-increment: st; display: grid; gap: 6px; }
+.w-steps li::before { content: counter(st); font-weight: 700; font-size: 22px; }
+
+/* Таблица */
+.w-table-wrap { overflow-x: auto; }
+.w-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.w-table th, .w-table td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.w-table th { background: var(--fill2); }
+
+/* FAQ */
+.w-faq details { border: 1px solid var(--line); padding: 12px 14px; }
+.w-faq details + details { border-top: 0; }
+.w-faq summary { font-weight: 600; cursor: pointer; }
+
+/* Форма */
+.w-form { border: 2px solid var(--ink); padding: 18px; display: grid; gap: 12px; max-width: 520px; }
+.w-field { display: grid; gap: 4px; font-size: 14px; }
+.w-field input, .w-field select { min-height: 44px; border: 1px solid var(--ink); padding: 0 10px; font: inherit; background: #fff; }
+.w-check { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; }
+
+/* Полоса призыва */
+.w-cta { background: var(--fill); padding: 24px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+/* Плашка призыва между блоками: section.w-block.w-cta-strip с одной строкой предложения и кнопкой или мини-формой (карточка prizyv-mezhdu-blokami) */
+.w-block.w-cta-strip { padding-block: 16px; }
+.w-cta-strip .w-cta { padding: 14px 18px; }
+.w-cta-strip .w-cta p { margin: 0; font-weight: 600; }
+
+/* Состояние формы после отправки (карточка stranica-spasibo-sleduyushchiy-shag): видно по переключателю «После отправки» */
+.w-success { display: none; border: 2px dashed var(--ink); padding: 14px; background: var(--fill); }
+.w-success p { margin: 0 0 6px; }
+body.show-success .w-success { display: block; }
+
+/* Подвал */
+.w-footer { background: var(--fill2); border-top: 1px solid var(--line); padding-block: 28px; font-size: 14px; }
+
+/* Липкая панель действий на телефоне */
+.w-sticky { display: none; }
+header.w-block { padding-block: 0; border-top: 0; }
+header.w-block > .w-logic { margin: 8px auto; max-width: var(--wrap); }
+
+@media (max-width: 760px) {
+  .w-hide-m { display: none !important; }
+  /* Мобильная шапка: логотип, короткий дескриптор и «Меню»; звонок и мессенджеры – в липкой панели снизу */
+  .w-header .w-wrap { flex-wrap: nowrap; padding-block: 8px; gap: 10px; }
+  .w-header .w-contacts-top, .w-header .w-wrap > .w-btn, .w-nav { display: none !important; }
+  .w-header .w-descr { font-size: 12px; line-height: 1.3; }
+  .w-header > .w-wrap:first-of-type::after { content: "☰ Меню"; margin-left: auto; border: 1px solid var(--ink); padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+  .w-hero .w-media, .w-block[data-n="1"] .w-media:first-of-type { min-height: 160px; }
+  .w-bar .w-wrap { padding-block: 4px; gap: 4px 10px; font-size: 11px; }
+  .w-hero { grid-template-columns: 1fr; }
+  .w-grid { grid-template-columns: repeat(var(--cols-m, 2), minmax(0, 1fr)); }
+  .w-steps { grid-template-columns: 1fr; }
+  .w-contacts-top { text-align: left; }
+  .w-block { padding-block: 28px; }
+  .w-sticky { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    padding: 8px max(12px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+    background: #fff; border-top: 1px solid var(--line); }
+  body { padding-bottom: 72px; }
+}
+@media (max-width: 420px) { .w-grid.one-m { grid-template-columns: 1fr; } }
