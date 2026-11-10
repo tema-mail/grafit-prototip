@@ -5,6 +5,8 @@ import { SITE, CITIES, PRICES, ZERO_TO, RUS, RUS_WORKS, DETAILING } from '../dat
 import { OLD_MSK } from '../data/old-paths.mjs';
 import { features, ptLine, DEMAND_MIN } from './features.mjs';
 import { modelNote } from './model-note.mjs';
+import { ICE_BRANDS, MSK_SPROS } from '../data/kitay.mjs';
+import { brandPage, modelPage } from './marka-model.mjs';
 import { page, block, hero, faq, form, intro, cta, steps, signs, why, reviews, priceTable, ask, askPrice, askTime, sitePrice, phone, esc } from './render.mjs';
 
 const fill = (t, M) => t.replaceAll('{M}', M);
@@ -49,7 +51,8 @@ export function buildCity(city, root) {
         photo: `Бокс техцентра ${city.gen}: Lixiang и Zeekr на подъёмниках, мастер с ноутбуком диагностики`, alt: `Техцентр GRAFIT ${C}` }),
       block(2, 'Марки', 'Обслуживаете мою машину?', 'пять марок, модели под каждой',
         `<h2>Выберите марку</h2><div class="w-grid" style="--cols:5;--cols-m:2">${BRANDS.map((b) => `<article class="w-card"><div class="w-media small" data-alt="${esc(b.name)}">Фото ${esc(b.name)} сбоку</div><h3><a href="${L(`/${b.slug}/`)}">${esc(b.name)}</a></h3><p>${b.models.map((m) => `<a href="${L(`/${b.slug}/${m.slug}/`)}">${esc(m.name)}</a>`).join(', ')}</p></article>`).join('')}</div>
-<p class="w-note">Другие марки из формы старого сайта (Geely, BYD, Denza, Changan, Leopard, Hongqi, Chery, Haval и др.) в меню не вынесены – решение владельца нужно до вёрстки.</p>`),
+${main ? `<h3>Бензиновые и гибридные марки</h3><div class="w-grid" style="--cols:6;--cols-m:2">${ICE_BRANDS.map((b) => `<article class="w-card"><h3><a href="${L(`/${b.slug}/`)}">${esc(b.name)}</a></h3><p>${b.models.map((m) => `<a href="${L(`/${b.slug}/${m.slug}/`)}">${esc(m.name)}</a>`).join(', ')}</p></article>`).join('')}</div>
+<p class="w-note">12 марок с самым большим спросом на ТО и сервис в Москве (Wordstat, 10.11.2026), страницы марки и моделей по шаблону из разбора топ-5. Порядок запуска: Lixiang, Zeekr, Voyah – сразу; Geely, Omoda – второй волной; Haval, Chery, Tank – через ремонт. В меню шапки – решение владельца.</p>` : ''}`),
       block(3, 'Частые работы', 'С чем сюда обычно едут?', 'популярные работы со ссылками',
         `<h2>С чем чаще всего приезжают</h2><div class="w-grid" style="--cols:3;--cols-m:2">${cityWorks.filter((s) => s.model).slice(0, 6).map((s) => `<article class="w-card"><h3><a href="${L(svcPath(s))}">${esc(s.name)}</a></h3><p>${esc(fill(s.lead, 'китайского автомобиля').split('. ')[0])}.</p></article>`).join('')}</div><p><a href="${L('/services/')}">Все услуги →</a></p>`),
       why(4, ctx),
@@ -73,44 +76,14 @@ export function buildCity(city, root) {
   for (const b of BRANDS) {
     const B = b.name;
     const works = worksOf(b);
-    const rows = works.filter((s) => s.group === 'maintenance' && b.models.some((m) => fits(m, s)));
-    add(`/${b.slug}/`, 'Хаб', page(ctx, {
-      pageName: `Сервис ${B}`, title: `Сервис ${B} ${C} – ТО, диагностика и ремонт ${b.ru}`, description: `Ремонт и обслуживание ${B} (${b.ru}) ${C}: ${b.models.map((m) => m.name).join(', ')}. ТО по регламенту, диагностика, ходовая${b.models.some((m) => m.air !== 'no') ? ', пневмоподвеска' : ''}.`,
-      h1: `Сервис ${B} ${C}`, zapros: `сервис ${B.toLowerCase()} ${city.name.toLowerCase()}; ремонт ${b.ru.toLowerCase()}; то ${B.toLowerCase()}`, schema: 'AutoRepair + Service (brand), BreadcrumbList, FAQPage',
-      links: b.models.map((m) => `/${b.slug}/${m.slug}/`).concat(works.slice(0, 6).map((s) => `/${b.slug}/${s.slug}/`)), crumbs: [[`Сервис ${B}`, `/${b.slug}/`]],
-      blocks: [
-        hero(1, ctx, { h1: `Сервис ${B} ${C}`, sub: b.about, bullets: [`<b>Модели</b> – ${esc(b.models.map((m) => m.name).join(', '))}`, `<b>Нулевое ТО</b> – ${zeroTo(b)}`, RUS[b.slug] ? `<b>Русификация</b> – ${rusPrice(RUS[b.slug].from)}` : `<b>Русификация Avatr</b> – ${ask('делаете или нет: в прайсе её нет, а старые страницы есть')}`], photo: `${B} в боксе GRAFIT ${city.gen}`, alt: `Сервис ${B} ${C}` }),
-        block(2, 'Модели', 'Обслуживаете мою модель?', 'модели с типом привода', `<h2>Модели ${esc(B)}</h2><div class="w-grid" style="--cols:4;--cols-m:2">${b.models.map((m) => `<article class="w-card"><div class="w-media small" data-alt="${esc(B + ' ' + m.name)}">Фото ${esc(B + ' ' + m.name)}</div><h3><a href="${L(`/${b.slug}/${m.slug}/`)}">${esc(B + ' ' + m.name)}</a></h3><p>${esc(cap(m.body))}, ${esc(ptLine(m))}</p></article>`).join('')}</div>`),
-        block(3, 'Цены на ТО', 'Сколько стоит обслуживание?', 'цены с сайта по работам ТО',
-          `<h2>ТО ${esc(B)}: цены</h2>${priceTable([['Нулевое ТО', zeroTo(b), askTime()], ...rows.map((s) => [`<a href="${L(`/${b.slug}/${s.slug}/`)}">${esc(s.name)}</a>`, price(b, s), askTime()])])}${main ? '' : `<p>${ask(`цены ${city.gen} – совпадают с московскими или свои`)}</p>`}`),
-        cta('3а', `Нулевое ТО ${B} – запишитесь, назовём цену и свободное время.`),
-        block(4, 'Все работы', `Что вы делаете на ${B}?`, 'работы по группам', `<h2>Все работы по ${esc(B)}</h2><div class="w-grid" style="--cols:3;--cols-m:2">${WGROUPS.filter((g) => works.some((s) => s.group === g.slug)).map((g) => `<article class="w-card"><h3>${esc(g.name)}</h3><p>${works.filter((s) => s.group === g.slug).map((s) => `<a href="${L(`/${b.slug}/${s.slug}/`)}">${esc(s.name)}</a>`).join(', ')}</p></article>`).join('')}</div>${RUS[b.slug] ? `<p><a href="${L(`/russification/${b.slug}/`)}">Русификация ${esc(B)} →</a></p>` : ''}`),
-        why(5, ctx, B),
-        cta('5а', `Запишитесь на бесплатный осмотр ${B} – назовём цену ТО и ремонта по вашей машине.`),
-        reviews(6, ctx, B),
-        faq(7, [['Обслуживаете {M}, привезённый из Китая?', 'Да. Русифицируем, обновляем и обслуживаем по регламенту производителя.'], ['Как часто делать ТО {M}?', 'По регламенту производителя для вашей модели и пробега – список составим до начала работ.'], ['Есть запчасти {M} в наличии?', `[запросить: склад запчастей ${B} ${city.in}, сроки привоза]`]], B),
-        form(8, ctx, { title: `Записаться на сервис ${B}`, what: `${B} ${b.models[0].name}, 2024` }),
-      ],
-    }));
+    const H = { ctx, L, C, main, price, zeroTo: (x) => zeroTo(x), why, spros: main ? MSK_SPROS[b.slug] : null, link: (x, m, s) => (m && msOn(x, m, s) ? `/${x.slug}/${m.slug}/${s.slug}/` : works.includes(s) ? `/${x.slug}/${s.slug}/` : null) };
+    const bb = { ...b, frazy: main ? MSK_SPROS[b.slug]?.frazy : null }; // спрос снят по Москве – на поддоменах не показываем
+    add(`/${b.slug}/`, 'Хаб', brandPage(H, bb));
 
     for (const m of b.models) {
       const M = `${B} ${m.name}`;
       const mw = works.filter((s) => fits(m, s));
-      add(`/${b.slug}/${m.slug}/`, 'Хаб', page(ctx, {
-        pageName: M, title: `Ремонт и обслуживание ${M} ${C}`, description: `Сервис ${M} ${C}: ТО, диагностика, ремонт${features(m).has('air') ? ', пневмоподвеска' : ''}${RUS[b.slug]?.models.includes(m.slug) ? ', русификация' : ''}. ${cap(ptLine(m))}.`,
-        h1: `Ремонт и обслуживание ${M} ${C}`, zapros: `ремонт ${M.toLowerCase()}; то ${M.toLowerCase()}`, schema: 'Service, BreadcrumbList, FAQPage',
-        links: mw.filter((s) => msOn(b, m, s)).map((s) => `/${b.slug}/${m.slug}/${s.slug}/`), crumbs: [[`Сервис ${B}`, `/${b.slug}/`], [M, `/${b.slug}/${m.slug}/`]],
-        blocks: [
-          hero(1, ctx, { h1: `Ремонт и обслуживание ${M} ${C}`, sub: `${m.note} Обслуживаем по регламенту производителя.`, bullets: [`<b>Тип</b> – ${esc(cap(m.body))}, ${esc(ptLine(m))}`, `<b>Пневмоподвеска</b> – ${{ yes: 'во всех версиях', part: 'в части версий', no: 'нет' }[m.air]}`, m.check ? ask(`подтвердить версии и силовые установки ${M}`) : '<b>Цена до начала работ</b> – после бесплатного осмотра'], photo: `${M} в боксе GRAFIT`, alt: `Сервис ${M} ${C}` }),
-          block(2, 'ТО модели', 'Когда мне на ТО и сколько это стоит?', 'работы ТО и цены', `<h2>ТО ${esc(M)}</h2>${priceTable(mw.filter((s) => s.group === 'maintenance').map((s) => [`<a href="${L(workLink(b, m, s))}">${esc(s.name)}</a>`, ask('интервал по регламенту'), price(b, s, m)]), ['Работа', 'Интервал', 'Цена'])}`),
-          block(3, 'Все работы', `Что вы делаете на ${M}?`, 'работы по группам', `<h2>Все работы по ${esc(M)}</h2><div class="w-grid" style="--cols:3;--cols-m:2">${WGROUPS.filter((g) => g.slug !== 'maintenance' && mw.some((s) => s.group === g.slug)).map((g) => `<article class="w-card"><h3>${esc(g.name)}</h3><p>${mw.filter((s) => s.group === g.slug).map((s) => `<a href="${L(workLink(b, m, s))}">${esc(s.name)}</a>`).join(', ')}</p></article>`).join('')}</div>${RUS[b.slug]?.models.includes(m.slug) ? `<p><a href="${L(`/russification/${b.slug}/${m.slug}/`)}">Русификация ${esc(M)} →</a></p>` : ''}`),
-          cta('3а', `Бесплатный осмотр ${M} по 39 параметрам – после него назовём точную цену.`),
-          reviews(4, ctx, M),
-          `<p class="w-wrap w-note">Интерес к «${esc(M)}» по Wordstat РФ: ${m.d ?? 'не собран'} в месяц (июль–сентябрь 2026). ${main ? ((m.d ?? 0) >= DEMAND_MIN ? 'Частые работы вынесены отдельными страницами.' : `Ниже порога ${DEMAND_MIN} – отдельных страниц работ нет.`) : 'На поддомене города страниц «модель × работа» нет: местного спроса на них мало, они живут на главном сайте.'}</p>`,
-          faq(5, [[`Обслуживаете ${M}, привезённый из Китая?`, 'Да. Русифицируем, обновляем и обслуживаем по регламенту производителя.'], [`Где найти регламент ТО ${M}?`, 'В сервисной книжке или в меню машины. Если книжки нет, составим список работ по пробегу.']], M),
-          form(6, ctx, { title: `Записаться на сервис ${M}`, what: `${M}, год, пробег` }),
-        ],
-      }));
+      add(`/${b.slug}/${m.slug}/`, 'Хаб', modelPage(H, bb, m));
       for (const s of mw.filter((x) => msOn(b, m, x))) {
         const sib = mw.filter((x) => x !== s && msOn(b, m, x));
         const others = b.models.filter((a) => a !== m && msOn(b, a, s));
@@ -150,6 +123,13 @@ export function buildCity(city, root) {
         ],
       }));
     }
+  }
+
+  // ── Бензиновые и гибридные марки (12 из топ-15 спроса Москвы, разбор 10.11.2026): только главный сайт, страницы марки и моделей
+  if (main) for (const b of ICE_BRANDS) {
+    const H = { ctx, L, C, main, price: () => askPrice(), link: (x, m, s) => (cityWorks.includes(s) ? svcPath(s) : null) };
+    add(`/${b.slug}/`, 'Хаб', brandPage(H, b));
+    for (const m of b.models) add(`/${b.slug}/${m.slug}/`, 'Хаб', modelPage(H, b, m));
   }
 
   // ── Каталог работ по всем маркам

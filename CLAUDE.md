@@ -7,6 +7,9 @@
 - Данные: `data/grafit.mjs` (города, цены с сайта, русификация, детейлинг, правила 301), `data/models.mjs` (5 марок,
   выгрузка из ~/Sites/monobrend-servis), `data/services.mjs` (справочник работ – копия оттуда же), `data/razbor.mjs`
   (выдача Москвы и лидеры), `data/old-paths.mjs` (старые адреса без чисел Метрики – репо публичный).
+- Страницы марки и «марка + модель» – шаблоны `src/marka-model.mjs` по разбору топ-5 Москвы 10.11.2026
+  (tema-mail.github.io/razbory/kitay-to-msk-6337fac7): регламент ТО-0…ТО-10 с ценой каждой работы, калькулятор, «что важно на модели».
+  `data/kitay.mjs` – 12 бензиновых и гибридных марок (только главный сайт) и спрос Москвы; на поддоменах московский спрос не показываем.
 - Сборка: `node build.mjs [/base]` → `dist/<город>/…`, `dist/redirects/`, `dist/index.html` (разбор для владельца).
   Шаблоны: `src/pages.mjs` (страницы города), `src/render.mjs` (каркас), `src/kit.css`, `src/page.js` – комплект marketolog/prototip.
 - Проверка: `node ~/.claude/skills/marketolog/prototip/proverka.mjs dist/<путь>/index.html <папка>` – PASS.
