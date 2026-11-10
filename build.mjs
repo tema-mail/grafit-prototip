@@ -6,7 +6,7 @@ import { CITIES, CITY_PENDING, PRICE_ISSUES, REDIRECT_RULES, NOT_PAGES } from '.
 import { OLD_MSK, OLD_UFA } from './data/old-paths.mjs';
 import { SERP, LEADERS } from './data/razbor.mjs';
 import { buildCity } from './src/pages.mjs';
-import { page, block, intro, esc, DATE } from './src/render.mjs';
+import { page, block, intro, esc, DATE, TEMA_HEAD_TAGS, TEMA_BODY_TAG } from './src/render.mjs';
 
 const BASE = process.argv[2] ?? '/grafit-prototip';
 const ROOT = `${BASE}/`;
@@ -44,13 +44,13 @@ const same = redirectsAll.filter((r) => r.t === r.p);
 const redirects = redirectsAll.filter((r) => r.t !== r.p);
 const bad = redirects.filter((r) => !r.ok);
 writeFileSync(join(OUT, 'redirects.csv'), 'host,old,new\n' + redirects.filter((r) => r.t).map((r) => `${r.host},${r.p},${r.t}`).join('\n') + '\n');
-const sh = `<style>body{font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;max-width:1100px;margin:0 auto;padding:24px 16px 80px;color:#141414}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top;overflow-wrap:anywhere}h1{font-size:28px;line-height:1.2}h2{margin-top:36px}.box{border:1px solid #ccc;border-radius:8px;padding:14px 18px;margin:18px 0}.m{color:#666}pre{overflow-x:auto;background:#f4f4f4;padding:12px;border-radius:6px}a{color:#141414}</style>`;
+const sh = `<style>body{font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;max-width:1100px;margin:0 auto;padding:24px 16px 80px;color:#141414}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top;overflow-wrap:anywhere}h1{font-size:28px;line-height:1.2}h2{margin-top:36px}.box{border:1px solid #ccc;border-radius:8px;padding:14px 18px;margin:18px 0}.m{color:#666}pre{overflow-x:auto;background:#f4f4f4;padding:12px;border-radius:6px}a{color:#141414}html[data-theme=dark] body{background:#151618;color:#e8e8e6}html[data-theme=dark] a{color:#8ab8ff}html[data-theme=dark] :is(pre,.box){background:#1d1f22;border-color:#44474e}html[data-theme=dark] :is(td,th){border-color:#33363c}html[data-theme=dark] .m{color:#a8a8a6}</style>${TEMA_HEAD_TAGS}`;
 mkdirSync(join(OUT, 'redirects'), { recursive: true });
 writeFileSync(join(OUT, 'redirects', 'index.html'), `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>GRAFIT – 301 со старых адресов</title>${sh}</head><body>
 <p><a href="${ROOT}">← Разбор и карта</a> · ${DATE}</p><h1>301 со старых адресов Тильды</h1>
 <p>${redirects.length} адресов: все страницы из Метрики и sitemap за весь период, без служебных адресов Тильды (кнопки, попапы, формы); ещё ${junk} мусорных адресов (боты, сохранённые на телефонах копии) отброшены. Ещё ${same.length} адресов не меняются (главная, статьи блога, часть русификации) – им 301 не нужен. «Был поиск» – заходили из поиска за последние 90 дней, их терять нельзя. Файл для сервера: <a href="${ROOT}redirects.csv">redirects.csv</a>.</p>
 ${bad.length ? `<p><b>Без пары: ${bad.length}</b> – решить вручную, иначе 404.</p>` : '<p>У всех адресов есть пара.</p>'}
-<table><thead><tr><th>Сайт</th><th>Старый</th><th>Новый</th><th>Был поиск</th></tr></thead><tbody>${redirects.map((r) => `<tr><td>${esc(r.host)}</td><td>${esc(r.p)}</td><td>${r.t ? esc(r.t) : '<b>нет пары</b>'}${r.t && !r.ok ? ' <b>(страницы нет)</b>' : ''}</td><td>${r.s ? 'да' : ''}</td></tr>`).join('')}</tbody></table></body></html>`);
+<table><thead><tr><th>Сайт</th><th>Старый</th><th>Новый</th><th>Был поиск</th></tr></thead><tbody>${redirects.map((r) => `<tr><td>${esc(r.host)}</td><td>${esc(r.p)}</td><td>${r.t ? esc(r.t) : '<b>нет пары</b>'}${r.t && !r.ok ? ' <b>(страницы нет)</b>' : ''}</td><td>${r.s ? 'да' : ''}</td></tr>`).join('')}</tbody></table>${TEMA_BODY_TAG}</body></html>`);
 
 // ── Страница для владельца: разбор + схема + ссылки
 const msk = stats.find((s) => s.city.main);
@@ -103,7 +103,7 @@ makhachkala.grafit-service.ru     Махачкала
 <li>Факты с сайта «6 лет», «6000 клиентов», «12 месяцев гарантии», «39 параметров» – чем подтверждаем.</li>
 </ol>
 <p class="m">Данные: выдача Яндекса через Chrome ${DATE}; sitemap конкурентов ${DATE}; сайт GRAFIT ${DATE}; Метрика и Вебмастер GRAFIT 02.11.2026 (разбор переезда); спрос по моделям – Wordstat РФ июль–сентябрь 2026.</p>
-</body></html>`);
+${TEMA_BODY_TAG}</body></html>`);
 
 if (existsSync('docs/itog.mp3')) copyFileSync('docs/itog.mp3', join(OUT, 'itog.mp3'));
 console.log(JSON.stringify({ cities: stats.map((s) => ({ c: s.city.slug, total: s.total, ...s.counts })), redirects: redirects.length, noPair: bad.map((r) => r.host + r.p + ' -> ' + r.t) }));

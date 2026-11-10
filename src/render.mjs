@@ -4,6 +4,17 @@ import { SITE, CITIES } from '../data/grafit.mjs';
 
 const KIT = readFileSync(new URL('./kit.css', import.meta.url), 'utf8');
 const SCRIPT = readFileSync(new URL('./page.js', import.meta.url), 'utf8');
+// Тёмная тема (правило владельца 10.11.2026, образец ~/.claude/shablony/tema.py): вечером 19–7 и при тёмной системе – сама, кнопка запоминает
+const TEMA_CSS = `html[data-theme=dark]{color-scheme:dark;--ink:#e8e8e6;--muted:#a8a8a6;--line:#4a4c50;--fill:#26282c;--fill2:#1d1f22;--paper:#151618;--note:#3a3320;--note-line:#8a7a3a;--ask:#ffa3a3}
+html[data-theme=dark] .w-bar{background:#000;color:#e8e8e6}html[data-theme=dark] .w-btn:not(.ghost){background:#e8e8e6;color:#151618}
+html[data-theme=dark] .w-ask{background:#3b2222}html[data-theme=dark] .w-seo{background:#1d2433;border-color:#4a5a80}html[data-theme=dark] .w-seo td{border-color:#33405c}
+html[data-theme=dark] :is(.w-field input,.w-field select,.w-sticky){background:#1d1f22;color:#e8e8e6}
+#tema-btn{position:fixed;right:14px;bottom:84px;z-index:99;width:44px;height:44px;border-radius:50%;border:1px solid #bbb;background:#fff;color:#111;font-size:20px;cursor:pointer}
+html[data-theme=dark] #tema-btn{background:#2a2d33;color:#f2f2f0;border-color:#44474e}`;
+const TEMA_HEAD = `(function(){var t;try{t=localStorage.getItem('tema')}catch(e){}if(!t){var h=new Date().getHours();t=(h>=19||h<7||(matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light'}document.documentElement.setAttribute('data-theme',t)})();`;
+const TEMA_BODY = `(function(){var b=document.createElement('button');b.id='tema-btn';b.type='button';function u(){var d=document.documentElement.getAttribute('data-theme')==='dark';b.textContent=d?'☀':'☾';b.title=d?'Светлая тема':'Тёмная тема';b.setAttribute('aria-label',b.title)}b.onclick=function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('tema',n)}catch(e){}u()};u();document.body.appendChild(b)})();`;
+export const TEMA_HEAD_TAGS = `<style data-tema-v1>${TEMA_CSS}</style><script>${TEMA_HEAD}</script>`;
+export const TEMA_BODY_TAG = `<script data-tema-v1>${TEMA_BODY}</script>`;
 export const DATE = '03.11.2026';
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const ask = (t) => `<span class="w-ask">[запросить: ${esc(t)}]</span>`;
@@ -21,7 +32,7 @@ export function page(ctx, { title, description, h1, zapros, schema, links = [], 
   const bc = crumbs.length ? `<nav class="w-wrap w-muted" style="font-size:14px;padding-top:12px">${[['Главная', '/'], ...crumbs].map(([t, p], i, a) => i < a.length - 1 ? `<a href="${L(p)}">${esc(t)}</a>` : esc(t)).join(' › ')}</nav>` : '';
   return `<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><title>${esc(seo.title)}</title><style>${KIT}</style></head><body>
+<meta name="robots" content="noindex,nofollow"><title>${esc(seo.title)}</title><style>${KIT}</style><style data-tema-v1>${TEMA_CSS}</style><script>${TEMA_HEAD}</script></head><body>
 <div class="w-bar"><div class="w-wrap"><b>Прототип · ${esc(city.host)} · ${esc(pageName)} · ${DATE}</b>
 <a href="${ctx.root}">Разбор и карта</a> <a href="${L('/sitemap/')}">Карта сайта</a>
 <label><input type="checkbox" id="t-logic"> Логика блоков</label><label><input type="checkbox" id="t-notes"> Комментарии дизайнеру</label>
@@ -34,7 +45,7 @@ ${blocks.join('\n')}
 </main>
 ${footer(ctx)}
 <div class="w-sticky"><a class="w-btn" href="tel:${tel(city)}">Позвонить</a><a class="w-btn ghost" href="#zayavka">Записаться</a></div>
-<script>${SCRIPT}</script></body></html>`;
+<script>${SCRIPT}</script><script data-tema-v1>${TEMA_BODY}</script></body></html>`;
 }
 
 function header({ city, L, root, brands }) {
